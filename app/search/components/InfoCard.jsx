@@ -11,6 +11,10 @@ const InfoCard = ({ listing }) => {
     setIsFavorite((prevIsFavorite) => !prevIsFavorite); // If the previous state is true, set it to false, and vice versa
   }
 
+  // ######## Comments about the several css
+  // relative: Sets the position to relative, which is necessary for the absolute positioning of the button.
+  // transition-transform duration-300 transform hover:scale-110: Applies a transform effect on hover, scaling the image up slightly.
+
   return (
     <div className="max-w-md mx-auto shadow-md rounded-lg overflow-hidden relative">
       <img 
