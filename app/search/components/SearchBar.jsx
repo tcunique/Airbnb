@@ -5,22 +5,18 @@ import 'react-date-range/dist/theme/default.css'; // theme css file
 import { DateRangePicker } from 'react-date-range';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import Link from "next/link";
+import { useSearchStore } from "../../../store";
+import { useRouter } from "next/navigation";
 
-const SearchBar = () => {
+const SearchBar = ( {toggleExpanded} ) => {
   const [isSearchFocused, setIsSearchFocused] = useState(false); // Set the initial state of the search bar to be collapsed
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(null);
+  const locationInput = useSearchStore((state) => state.location)
+  const startDate = useSearchStore((state) => state.dates[0])
+  const endDate = useSearchStore((state) => state.dates[1])
+  const router = useRouter();
 
   const handleSelect = (ranges) => {
-    if (ranges.selection.startDate !== startDate) { // If the start date is not equal to the current start date
-      setStartDate(ranges.selection.startDate);
-    }
-    if (ranges.selection.endDate !== endDate) {
-      setEndDate(ranges.selection.endDate);
-    }
-
-    setStartDate(ranges.selection.startDate);
-    setEndDate(ranges.selection.endDate);
+    useSearchStore.setState({ dates : [ranges.selection.startDate, ranges.selection.endDate]});
   }
 
   const selectionRange = {
@@ -29,8 +25,13 @@ const SearchBar = () => {
     key: 'selection',
   }
 
-  const toggleExpanded = () => {
-    setIsSearchFocused((prevIsSearchFocused) => !prevIsSearchFocused); // If the previous state is true, set it to false, and vice versa
+  const handleLocationUpdate = (e) => {
+    useSearchStore.setState({ location : e.target.value });
+  }
+
+  const handleSearchClick = () => {
+    router.push("/search/results");
+    toggleExpanded();
   }
 
   // ######## Comments about the serveral css
@@ -48,7 +49,13 @@ const SearchBar = () => {
         <p className="font-bold text-black">Where</p>
         {
           isSearchFocused ? (
-            <input type="text" placeholder="Search Destinations" className="text-slate-800 bg-transparent border-none outline-none" />
+            <input 
+              type="text" 
+              placeholder="Search Destinations" 
+              className="text-slate-800 bg-transparent border-none outline-none" 
+              onChange={handleLocationUpdate}
+              value={locationInput}
+            />
           ) :
             (<p className="text-slate-600">Search Destination</p>)
         }
@@ -79,13 +86,14 @@ const SearchBar = () => {
           <Counter label="Adults" />
         </div>
       </div>
-      <Link
+      <button
         href="/search/results"
         className="px-4 text-white rounded-full bg-primary p-3 flex justifiy-center gap-3 flex-row"
+        onClick={handleSearchClick}
       >
         <MagnifyingGlassIcon className="h-5 w-5" />
         <span>Search</span>
-      </Link>
+      </button>
     </div>
   )
 };

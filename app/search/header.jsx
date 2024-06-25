@@ -1,15 +1,24 @@
 "use client" // This file is client-side only
-import { useState } from "react"
+import { useState, useRef } from "react"
 import SearchBar from "./components/SearchBar";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import clsx from "clsx";
+import { useClickAway } from "react-use";
+import Image from "next/image";
 
 export default function Header() {
   const [isExpanded, setIsExpanded] = useState(false); // Set the initial state of the header to be collapsed
+  const ref = useRef(null);
 
   const toggleExpanded = () => {
     setIsExpanded((prevIsExpanded) => !prevIsExpanded); // If the previous state is true, set it to false, and vice versa
   }
+
+  useClickAway(ref, () => {
+    if (isExpanded) {
+      setIsExpanded(false);
+    }
+  });
 
   const headerContainerClasses = clsx(
     "container",
@@ -18,6 +27,7 @@ export default function Header() {
     "justify-between",
     "bg-white",
     "py-8",
+    "z-50",
     {
       "h-[7.5rem]" : !isExpanded,
       "h-[13rem]" : isExpanded
@@ -41,6 +51,24 @@ export default function Header() {
     }
   );
 
+  const modalClasses = clsx(
+    "absolute",
+    "top-0",
+    "left-0",
+    "w-full",
+    "h-full",
+    "z-40",
+    "bg-black",
+    "bg-opacity-50",
+    "transition-opacity duration-300 ease-in-out",
+    {
+      "hidden" : !isExpanded,
+      "block" : isExpanded,
+      "opacity-0" : !isExpanded,
+      "opacity-100" : isExpanded
+    }
+  )
+
 
 
   // COmments about the several functions : 
@@ -51,11 +79,14 @@ export default function Header() {
   // top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2: These classes center the icon within the div by translating it by half of its own width and height.
 
   return (
-    <header className="flex border-b bg-white z-50 fixed w-full"> 
+    <>
+    <header ref={ref} className="flex border-b bg-white z-50 fixed w-full"> 
       <div className={headerContainerClasses}>
-        <div className="text-red-500">airbnb</div>
+        <div className="text-red-500">
+          <Image src="/images/logo.png" height={50} width={172} alt="Logo" />
+        </div>
         {isExpanded ? (
-          <SearchBar />
+          <SearchBar toggleExpanded={toggleExpanded} />
         ) : (
           <button
             onClick={toggleExpanded}
@@ -75,8 +106,12 @@ export default function Header() {
             </div>
           </button>
         )}
-        <div>user</div>
+        <div>
+          <Image src="/images/user.svg" height={30} width={30} alt="User" />
+        </div>
       </div>
     </header>
+    <div className={modalClasses}></div>
+    </>
   )
 }
